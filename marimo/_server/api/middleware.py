@@ -130,10 +130,10 @@ class SkewProtectionMiddleware:
         # If not POST request, then skip
         if request.method != "POST":
             return await self.app(scope, receive, send)
-        # If is a form, then skip
-        if request.headers.get("Content-Type", "").startswith(
-            "application/x-www-form-urlencoded"
-        ):
+        # If the login form submission, then skip.
+        # The login page is a server-rendered plain HTML form and does not
+        # attach the server token header.
+        if request.url.path.rstrip("/").endswith("/auth/login"):
             return await self.app(scope, receive, send)
         # If /api/kernel/execute, skip (agent-only endpoint)
         if request.url.path.rstrip("/").endswith("/api/kernel/execute"):
