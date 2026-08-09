@@ -685,10 +685,17 @@ export function useCellEditorNavigationProps(
   const keymapPreset = useAtomValue(keymapPresetAtom);
   const hotkeys = useAtomValue(hotkeysAtom);
 
-  const vimCommandModeShortcut = useMemo(() => {
-    const shortcut = hotkeys.getHotkey("command.vimEnterCommandMode");
+  const enterCommandModeShortcut = useMemo(() => {
+    // Default preset: command.enterCommandMode (Escape).
+    // Vim preset: command.vimEnterCommandMode (Mod-Escape / Shift-Escape).
+    // Empty keymap.overrides entry unbinds (disable enter-command-mode).
+    const action =
+      keymapPreset === "vim"
+        ? "command.vimEnterCommandMode"
+        : "command.enterCommandMode";
+    const shortcut = hotkeys.getHotkey(action);
     return parseShortcut(shortcut.key);
-  }, [hotkeys]);
+  }, [hotkeys, keymapPreset]);
 
   const exitToCommandMode = () => {
     temporarilyShownCodeActions.remove(cellId);
@@ -699,9 +706,9 @@ export function useCellEditorNavigationProps(
     });
   };
 
-  const handleEscape = () => {
+  const handleEnterCommandMode = () => {
     // If there is a text selection or autocomplete popup in the editor, we clear those and return.
-    // Subsequent 'Escapes' will exit to command mode.
+    // Subsequent presses will exit to command mode.
 
     if (!editorView.current) {
       // If no editor, we can exit to command mode immediately
@@ -738,16 +745,8 @@ export function useCellEditorNavigationProps(
 
   const { keyboardProps } = useKeyboard({
     onKeyDown: (evt) => {
-      if (keymapPreset === "vim") {
-        // For vim mode, use configurable shortcut
-        if (vimCommandModeShortcut(evt)) {
-          handleEscape();
-        }
-      } else {
-        // For non-vim mode, regular Escape exits to command mode
-        if (evt.key === "Escape") {
-          handleEscape();
-        }
+      if (enterCommandModeShortcut(evt)) {
+        handleEnterCommandMode();
       }
       evt.continuePropagation();
     },

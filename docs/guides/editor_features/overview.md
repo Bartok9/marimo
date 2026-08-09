@@ -247,3 +247,22 @@ you!), please consider posting in our [GitHub
 issues](https://github.com/marimo-team/marimo/issues) or
 [Discord](https://marimo.io/discord?ref=docs). But if you're in a flow state and
 can't context switch out, the feedback form has your back.
+
+
+### Enter command mode binding
+
+The default preset uses `command.enterCommandMode` (Escape) to leave the cell
+editor and enter command mode, matching Jupyter's configurable
+`enter-command-mode` binding. Vim preset uses `command.vimEnterCommandMode`.
+
+Override or disable via `keymap.overrides`:
+
+```toml
+[keymap.overrides]
+# Remap
+"command.enterCommandMode" = "Ctrl-Escape"
+
+# Disable (empty override = unbound). Escape still clears
+# completions / signature help / multi-cursor when those are open.
+"command.enterCommandMode" = ""
+```

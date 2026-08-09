@@ -438,6 +438,11 @@ const DEFAULT_HOT_KEY = {
   },
 
   // Command mode (edit a cell, not the editor)
+  "command.enterCommandMode": {
+    name: "Enter command mode",
+    group: "Command",
+    key: "Escape",
+  },
   "command.vimEnterCommandMode": {
     name: "Enter command mode (vim)",
     group: "Command",
@@ -576,10 +581,14 @@ export class OverridingHotkeyProvider extends HotkeyProvider {
 
   override getHotkey(action: HotkeyAction): ResolvedHotkey {
     const base = super.getHotkey(action);
+    // Missing override → default. Present empty string → unbound/disabled.
+    if (!(action in this.overrides)) {
+      return base;
+    }
     const override = this.overrides[action];
     return {
       name: base.name,
-      key: override ? normalizeKeyString(override) : base.key,
+      key: override ? normalizeKeyString(override) : "",
       additionalKeywords: base.additionalKeywords,
     };
   }
